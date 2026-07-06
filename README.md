@@ -4,7 +4,7 @@ Automated weekly deploy summary agent for `gocrisp/app-aurora`.
 
 Each Monday at ~5pm, a Claude scheduled task:
 1. Finds the last prod release tag on `gocrisp/app-aurora`
-2. Collects all PRs merged to `develop` since that release
+2. Collects all PRs merged to `develop` since that release, **filtered to the deploy team only** (`ashleywangxx`, `abhilashkoneru-crisp`, `carolbaobao`)
 3. Maps each PR to a Linear issue (best-effort, via branch/title ID matching)
 4. Composes a structured Slack draft in `#es-temp-aurora-fifa` for review before the weekly deploy
 
@@ -14,7 +14,7 @@ The draft lands in Slack "Drafts & Sent" — Ashley reviews and hits send. Nothi
 
 ### Prerequisites
 
-- [Claude desktop app](https://claude.ai/download) installed and running
+- [Claude desktop app](https://claude.ai/download) installed and running on Mondays around 5pm
 - `gh` CLI authenticated: `gh auth login`
 - Slack MCP connected in claude.ai connector settings
 - Linear MCP connected in claude.ai connector settings (optional — skipped gracefully if missing)
@@ -27,11 +27,16 @@ Copy `scheduled-tasks/weekly-aurora-deploy-summary/SKILL.md` into:
 ~/.claude/scheduled-tasks/weekly-aurora-deploy-summary/SKILL.md
 ```
 
-The Claude app picks it up automatically. You can manage it from the **Scheduled** section in the sidebar.
+The Claude app picks it up automatically. Manage it from the **Scheduled** section in the sidebar.
 
-### First run
+### One-time setup: pre-approve tools so it runs automatically
 
-Trigger "Run now" from the sidebar to pre-approve the tools (`gh`, Slack MCP, Linear MCP) so future scheduled runs don't pause on permission prompts.
+The task needs tool permissions approved once. After that, future runs are fully automatic.
+
+1. Go to the **Scheduled** section in the Claude sidebar
+2. Find `weekly-aurora-deploy-summary` → click **Run now**
+3. Approve each tool prompt as it appears (`gh`, Slack MCP, Linear MCP)
+4. Approvals are stored permanently on the task — you will never be asked again
 
 ## Files
 
@@ -41,20 +46,29 @@ scheduled-tasks/
     SKILL.md        # Self-contained task prompt — edit this to change behavior
 ```
 
+## PR author filter
+
+Only PRs from these GitHub accounts are included in the deploy summary:
+- `ashleywangxx`
+- `abhilashkoneru-crisp`
+- `carolbaobao`
+
+To change the filter, edit the author list in `SKILL.md` Step 2.
+
 ## Slack message format
 
 ```
 🚀 Weekly Deploy Summary — [date]
 
 PRs shipping in this deploy (merged to `develop` since [last release tag]):
-• #123 Some PR title — @author → ENG-456: Linear issue title (In Progress)
-• #124 Another PR — @author  → no Linear issue
+• #123 Some PR title — @ashleywangxx → ENG-456: Linear issue title (In Progress)
+• #124 Another PR — @carolbaobao → no Linear issue
 
 Latest releases:
 • v1.22.0 — Jun 30 — compare link
 • v1.21.0 — Jun 23 — compare link
 
-5 PRs total • Compare: v1.22.0...develop
+3 PRs total • Compare: v1.22.0...develop
 ```
 
 ## Customization
@@ -62,5 +76,6 @@ Latest releases:
 Edit `SKILL.md` to change:
 - Target repo (`gocrisp/app-aurora`)
 - Slack channel ID (`C0B01UG1UTF`)
+- Allowed PR authors
 - Number of releases shown
 - Message format

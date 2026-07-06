@@ -17,9 +17,13 @@ Also confirm with: `gh api repos/gocrisp/app-aurora/git/refs/tags --jq '[.[] | s
 
 Run: `gh pr list --repo gocrisp/app-aurora --state merged --base develop --limit 50 --json number,title,author,mergedAt,url,headRefName`
 
-Filter to PRs where `mergedAt` is after the last prod release `publishedAt` timestamp. These are the PRs shipping in this deploy.
+Filter to PRs where:
+1. `mergedAt` is after the last prod release `publishedAt` timestamp
+2. `author.login` is one of: `ashleywangxx`, `abhilashkoneru-crisp`, `carolbaobao`
 
-For each PR, extract: PR number, title, author login, merge date, URL, and branch name.
+Exclude all PRs from any other author. These three are the only team members whose changes are included in the deploy summary.
+
+For each qualifying PR, extract: PR number, title, author login, merge date, URL, and branch name.
 
 ## Step 3 — Try to map PRs to Linear issues (best-effort)
 
@@ -62,7 +66,7 @@ This creates a draft that Ashley can review in Slack Drafts & Sent before sendin
 ## Error handling
 
 - If `gh` CLI is not authenticated or the repo is inaccessible, stop and output an error message explaining what's blocked.
-- If no PRs are found since the last release, compose the draft anyway noting "No new PRs merged since [last release tag]."
+- If no PRs from the three authors are found since the last release, compose the draft anyway noting "No new PRs merged since [last release tag] from the deploy team."
 - If the Slack MCP draft tool fails because a draft already exists, note this in your output so Ashley can clear the existing draft and re-run if needed.
 - If Linear MCP is unavailable, skip the Linear step and list PRs without issue links — do not fail the whole task.
 
@@ -70,6 +74,6 @@ This creates a draft that Ashley can review in Slack Drafts & Sent before sendin
 
 After posting the draft, output a brief confirmation:
 - Last prod release found: [tag]
-- PRs collected: [N]
+- PRs collected: [N] (from ashleywangxx, abhilashkoneru-crisp, carolbaobao only)
 - Linear mappings: [N found / N attempted]
 - Slack draft: created in #es-temp-aurora-fifa ✓
