@@ -23,54 +23,51 @@ Filter to PRs where:
 
 Exclude all PRs from any other author.
 
-For each qualifying PR, extract: PR number, title, author login, merge date, and URL.
+For each qualifying PR, extract: PR number, title, author login, and URL.
 
 ## Step 3 — Determine the deploy date
 
-The deploy date is always the Tuesday immediately following the day this task runs (Monday). Format it as: `Tuesday, [Month] [D], [YYYY]` — e.g. `Tuesday, July 8, 2025`. Compute this from the current date.
+The deploy is always the Tuesday immediately following the day this task runs (Monday). Format it as: `[Month] [D]` — e.g. `July 8`. Compute this from the current date.
 
 ## Step 4 — Compose and post the Slack draft
 
-Compose a clean, professional Slack message in this format:
+Compose the message exactly in this format:
 
 ```
-<@U08M2NJ3U5Q>
+<@U08M2NJ3U5Q> — here are the PRs shipping tomorrow ([Month D]) in this week's deploy:
 
-*Weekly Deploy Summary — Tuesday, [Month D, YYYY]*
-
-Here are the PRs shipping in this week's deploy:
-
-• <PR URL|#[number] — [title]> — @[author]
-• <PR URL|#[number] — [title]> — @[author]
+• <url|#[number] [title]> — @[author]
+• <url|#[number] [title]> — @[author]
 ...
 
-_[N] PRs shipping • Merged to `develop` since [lastProdTag]_
+_[N] PRs • develop since [lastProdTag]_
 ```
 
 Guidelines:
-- Tag Sameer using `<@U08M2NJ3U5Q>` at the top so he's notified
-- Use Slack hyperlink format `<url|display text>` for each PR
-- Keep PR titles as-is — do not truncate or paraphrase
-- No Linear issue references
-- No "Latest releases" section
-- Tone should be clean and direct — no filler phrases
+- The opening line tags Sameer naturally — do not add a separate header or bold title
+- Use Slack hyperlink format `<url|display text>` for each PR — this prevents link previews
+- Keep PR titles as-is
+- No Linear references, no "Latest releases" section
+- Tone: direct and clean
 
 Use the `slack_send_message_draft` MCP tool with:
-- channel: `C0B01UG1UTF` (this is the #es-temp-aurora-fifa channel)
+- channel: `C0B01UG1UTF`
+- unfurl_links: false
+- unfurl_media: false
 - The fully composed message above
 
-This creates a draft that Ashley can review in Slack Drafts & Sent before sending — do NOT post it directly.
+Do NOT post directly — this creates a draft for Ashley to review.
 
 ## Error handling
 
-- If `gh` CLI is not authenticated or the repo is inaccessible, stop and output an error message explaining what's blocked.
-- If no PRs from the three authors are found since the last release, compose the draft anyway noting "No new PRs this week."
-- If the Slack MCP draft tool fails because a draft already exists, note this in your output so Ashley can clear the existing draft and re-run.
+- If `gh` CLI is inaccessible, stop and report the error.
+- If no qualifying PRs are found, draft the message noting "No new PRs this week."
+- If a Slack draft already exists and the tool errors, note it so Ashley can clear and re-run.
 
 ## Output
 
-After posting the draft, output a brief confirmation:
-- Last prod release found: [tag]
-- PRs collected: [N] (from ashleywangxx, abhilashkoneru-crisp, carolbaobao only)
-- Deploy date in draft: [Tuesday date]
+After posting the draft, output:
+- Last prod release: [tag]
+- PRs collected: [N]
+- Deploy date: [Tuesday date]
 - Slack draft: created in #es-temp-aurora-fifa ✓
