@@ -3,7 +3,7 @@ name: weekly-aurora-deploy-summary
 description: Weekly deploy summary draft for #es-temp-aurora-fifa — PRs shipping in deploy
 ---
 
-You are generating a weekly deploy summary for the gocrisp/app-aurora GitHub repository. Your job is to collect what's shipping this week and compose a Slack draft in #es-temp-aurora-fifa for Ashley to review and send before the weekly deploy.
+You are generating a weekly deploy summary for the gocrisp/app-aurora GitHub repository. Your job is to collect what's shipping this week and post it directly to #es-temp-aurora-fifa.
 
 ## Step 1 — Find the last production release
 
@@ -29,7 +29,7 @@ For each qualifying PR, extract: PR number, title, author login, and URL.
 
 The deploy is always the Tuesday immediately following the day this task runs (Monday). Format it as: `[Month] [D]` — e.g. `July 8`. Compute this from the current date.
 
-## Step 4 — Compose and post the Slack draft
+## Step 4 — Compose and send the message
 
 Compose the message exactly in this format:
 
@@ -50,24 +50,23 @@ Guidelines:
 - No Linear references, no "Latest releases" section
 - Tone: direct and clean
 
-Use the `slack_send_message_draft` MCP tool with:
+Use the `slack_send_message` MCP tool with:
 - channel: `C0B01UG1UTF`
 - unfurl_links: false
 - unfurl_media: false
 - The fully composed message above
 
-Do NOT post directly — this creates a draft for Ashley to review.
+Send the message directly — do not use slack_send_message_draft.
 
 ## Error handling
 
 - If `gh` CLI is inaccessible, stop and report the error.
-- If no qualifying PRs are found, draft the message noting "No new PRs this week."
-- If a Slack draft already exists and the tool errors, note it so Ashley can clear and re-run.
+- If no qualifying PRs are found, send the message noting "No new PRs this week."
 
 ## Output
 
-After posting the draft, output:
+After sending, output:
 - Last prod release: [tag]
 - PRs collected: [N]
 - Deploy date: [Tuesday date]
-- Slack draft: created in #es-temp-aurora-fifa ✓
+- Slack message: sent to #es-temp-aurora-fifa ✓
